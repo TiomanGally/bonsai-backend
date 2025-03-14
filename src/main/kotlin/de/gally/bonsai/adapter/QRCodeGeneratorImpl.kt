@@ -14,10 +14,15 @@ import javax.imageio.ImageIO
 @Component
 class QRCodeGeneratorImpl(
     @Value("\${bonsai.ui.link}") private val bonsaiUiLink: String,
+    @Value("\${bonsai.root-directory-for-data}") private val rootDirectory: String,
 ) : QRCodeGenerator {
 
+    private val filePath: (uuid: UUID, name: String) -> File = { uuid: UUID, name: String ->
+        File("$rootDirectory/qrcode/$name-$uuid.png")
+    }
+
     override operator fun invoke(name: String, uuid: UUID, text: String): File {
-        val file = File("qrcodes/$name-$uuid.png")
+        val file = filePath(uuid, name)
         if (!file.exists()) {
             createFile(text, file)
         }

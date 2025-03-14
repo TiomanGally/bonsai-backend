@@ -2,6 +2,7 @@ package de.gally.bonsai.adapter
 
 import de.gally.bonsai.domain.Picture
 import de.gally.bonsai.domain.usecases.PictureManager
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
@@ -70,15 +71,15 @@ class PictureDatabaseManagerService(
  */
 @Repository
 @ConditionalOnProperty(value = ["bonsai.pictures.store-pictures-in-database"], havingValue = "false", matchIfMissing = true)
-class PictureLocalFileSystemManagerService : PictureManager {
-
-    private companion object {
-        const val BASE_PICTURE_DIR = "pictures"
-    }
+class PictureLocalFileSystemManagerService(
+    @Value("\${bonsai.root-directory-for-data}") private val rootDirectory: String,
+) : PictureManager {
 
     private val path: (bonsaiUuid: UUID, pictureUuid: UUID, fileName: String) -> String = { bonsaiUuid, pictureUuid, fileName ->
-        "$BASE_PICTURE_DIR/$bonsaiUuid/${pictureUuid}_${LocalDate.now()}.${fileName.substringAfterLast(".")}"
+        "$basePath/pictures/$bonsaiUuid/${pictureUuid}_${LocalDate.now()}.${fileName.substringAfterLast(".")}"
     }
+
+    private val basePath: String by lazy { "$rootDirectory/pictures" }
 
     override fun addPicture(bonsaiUuid: UUID, fileName: String, picture: ByteArray): Picture {
         val pictureUuid = UUID.randomUUID()
@@ -90,7 +91,7 @@ class PictureLocalFileSystemManagerService : PictureManager {
     }
 
     override fun deletePicture(bonsaiUuid: UUID, pictureUuid: UUID) {
-        val file = File("$BASE_PICTURE_DIR/$bonsaiUuid")
+        val file = File("$basePath/$bonsaiUuid")
             .listFiles { file -> file.id() == pictureUuid }
             ?.firstOrNull()
 
@@ -100,11 +101,11 @@ class PictureLocalFileSystemManagerService : PictureManager {
     }
 
     override fun getAllPictureUuids(bonsaiUuid: UUID, page: Int, pageSize: Int): List<UUID> {
-        return File("$BASE_PICTURE_DIR/$bonsaiUuid").listFiles()?.map { it.id() } ?: emptyList()
+        return File("$basePath/$bonsaiUuid").listFiles()?.map { it.id() } ?: emptyList()
     }
 
     override fun getPictureByUuid(bonsaiUuid: UUID, pictureUuid: UUID): Picture? {
-        return File("$BASE_PICTURE_DIR/$bonsaiUuid")
+        return File("$basePath/$bonsaiUuid")
             .listFiles()
             ?.firstOrNull { it.id() == pictureUuid }
             ?.let { Picture(pictureUuid, it.name, it.readBytes(), it.createdAt()) }

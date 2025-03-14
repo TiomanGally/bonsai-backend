@@ -35,7 +35,8 @@ class SecurityConfiguration {
                     CorsConfiguration().apply {
                         allowedOrigins = listOf(bonsaiUi, bonsaiBackend)
                         allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        allowedHeaders = listOf(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE)
+                        allowedHeaders = listOf(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE, "x-filename", "x-created-at", HttpHeaders.CONTENT_DISPOSITION)
+                        exposedHeaders = listOf("x-filename", "x-created-at", HttpHeaders.CONTENT_DISPOSITION)
                         allowCredentials = true
                     }
                 }
