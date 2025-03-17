@@ -1,6 +1,9 @@
 package de.gally.bonsai.config
 
+import de.gally.bonsai.domain.usecases.UserService
+import de.gally.bonsai.port.rest.UserNotFoundException
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
@@ -10,19 +13,36 @@ import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
+import java.util.UUID
 
 
 @Configuration
 class SecurityConfiguration {
 
     @Bean
+    @Order(0)
+    @ConditionalOnProperty(value = ["spring.security.oauth2.enable"], havingValue = "false")
+    fun ldevSecurityConfiguration(httpSecurity: HttpSecurity): SecurityFilterChain {
+        httpSecurity {
+            csrf { disable() }
+            authorizeHttpRequests {
+                authorize(anyRequest, permitAll)
+            }
+        }
+        return httpSecurity.build()
+    }
+
+    @Bean
     @Order(1)
+    @ConditionalOnProperty(value = ["spring.security.oauth2.enable"], havingValue = "true")
     fun general(
         httpSecurity: HttpSecurity,
         @Value("\${bonsai.ui.link}") bonsaiUi: String,
@@ -84,4 +104,16 @@ class BonsaiUser(
     override fun getTokenAttributes(): MutableMap<String, Any> = jwt.claims
 
     override fun isAuthenticated(): Boolean = authorities.isNotEmpty()
+}
+
+internal fun getCurrentAuthentication(): Authentication = SecurityContextHolder.getContext().authentication
+
+internal fun Authentication.getUuidOfUser(userService: UserService): UUID {
+    // when securityConfiguration is enabled
+    if (this is BonsaiUser) {
+        return userService.findUserByEmail(this.email)?.uuid ?: throw UserNotFoundException(this.email)
+    }
+
+    // when securityConfiguration is disabled
+    return UUID.randomUUID()
 }

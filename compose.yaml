@@ -1,0 +1,52 @@
+services:
+  bonsai-backend:
+    image: bonsai-backend:1.0
+    container_name: bonsai-backend
+    volumes:
+      - ~/Documents/bonsai:/bonsai
+    networks:
+      - bonsai-playground
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8123:8123"
+    restart: unless-stopped
+
+  bonsai-postgres-container:
+    image: postgres
+    container_name: bonsai-postgres-container
+    networks:
+      - bonsai-playground
+    environment:
+      - POSTGRES_USER=bonsai
+      - POSTGRES_PASSWORD=bonsai
+      - POSTGRES_DB=bonsai
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  bonsai-keycloak:
+    image: quay.io/keycloak/keycloak:26.1.3
+    container_name: bonsai-keycloak
+    networks:
+      - bonsai-playground
+    ports:
+      - "8080:8080"
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+    command: [ "start-dev" ]
+    restart: unless-stopped
+
+  bonsai-frontend:
+    image: bonsai-frontend:1.0
+    container_name: bonsai-frontend
+    networks:
+      - bonsai-playground
+    ports:
+      - "4200:4200"
+    restart: unless-stopped
+
+networks:
+  bonsai-playground:
+    driver: bridge
