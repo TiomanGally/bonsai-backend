@@ -27,7 +27,7 @@ class NotesManagerService(
             VALUES (?, ?, ?)
             RETURNING uuid
         """
-        val newUuid: UUID = jdbcTemplate.queryForObject(sql, UUID::class.java, UUID.randomUUID(), note.content, bonsaiUUID)
+        val newUuid: UUID? = jdbcTemplate.queryForObject(sql, UUID::class.java, UUID.randomUUID(), note.content, bonsaiUUID)
 
         return note.copy(uuid = newUuid)
     }

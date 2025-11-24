@@ -106,7 +106,7 @@ class BonsaiUser(
     override fun isAuthenticated(): Boolean = authorities.isNotEmpty()
 }
 
-internal fun getCurrentAuthentication(): Authentication = SecurityContextHolder.getContext().authentication
+internal fun getCurrentAuthentication(): Authentication = SecurityContextHolder.getContext().authentication ?: throw RuntimeException("No authentication available")
 
 internal fun Authentication.getUuidOfUser(userService: UserService): UUID {
     // when securityConfiguration is enabled
