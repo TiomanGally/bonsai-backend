@@ -1,5 +1,7 @@
 # 🌿 Balkonsai - The Bonsai Backend 🌿
 
+[![Build and Push Spring Boot Docker Image](https://github.com/TiomanGally/bonsai-backend/actions/workflows/build-and-push-docker-image.yaml/badge.svg?branch=main)](https://github.com/TiomanGally/bonsai-backend/actions/workflows/build-and-push-docker-image.yaml)
+
 Welcome to **Balkonsai**, the ultimate backend for managing bonsais!  
 Why **Balkonsai**? Well, since I don’t have a garden, my bonsais live happily on my **balcony** (*Balkon* in German).  
 Yes, I am basically running a **tiny forest on a ledge**.
