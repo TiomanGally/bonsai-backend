@@ -19,7 +19,7 @@ java {
 repositories {
     mavenCentral()
 }
-val kotlinCoroutinesVersion by extra { "1.8.1" } // 1.10.2
+val kotlinCoroutinesVersion by extra { "1.10.2" }
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -27,7 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("uk.org.okapibarcode:okapibarcode:0.4.9") // 0.5.2
+    implementation("uk.org.okapibarcode:okapibarcode:0.5.2")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
